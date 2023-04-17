@@ -1,0 +1,72 @@
+FROM ubuntu:22.04 AS builder
+LABEL Author="Raja Subramanian" Description="A comprehensive docker image to run Apache-2.4 PHP-8.1 applications like Wordpress, Laravel, etc"
+ENV PHP_VERSION 8.2
+
+# Stop dpkg-reconfigure tzdata from prompting for input
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y software-properties-common ca-certificates lsb-release apt-transport-https
+RUN LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php \
+    && apt update
+# Install apache and php
+RUN apt-get update && \
+    apt-get -y install \
+        apache2 \
+        libapache2-mod-php \
+        libapache2-mod-auth-openidc \
+        php${PHP_VERSION}-bcmath \
+        php${PHP_VERSION}-cli \
+        php${PHP_VERSION}-curl \
+        php${PHP_VERSION}-mbstring \
+        php${PHP_VERSION}-gd \
+        php${PHP_VERSION}-mysql \
+        # php${PHP_VERSION}-json \
+        php${PHP_VERSION}-ldap \
+        php${PHP_VERSION}-memcached \
+        # php${PHP_VERSION}-mime-type \
+        php${PHP_VERSION}-pgsql \
+        php${PHP_VERSION}-tidy \
+        php${PHP_VERSION}-intl \
+        php${PHP_VERSION}-xmlrpc \
+        php${PHP_VERSION}-soap \
+        php${PHP_VERSION}-uploadprogress \
+        php${PHP_VERSION}-zip \
+        php${PHP_VERSION}-mongodb \
+        php${PHP_VERSION}-xml \
+        nodejs \
+        nano \
+        git \
+        npm \
+        gcc \
+        sudo \
+        composer && \
+# Ensure apache can bind to 80 as non-root
+        # libcap2-bin && \
+    setcap 'cap_net_bind_service=+ep' /usr/sbin/apache2 && \
+    # dpkg --purge libcap2-bin && \
+    apt-get -y autoremove && \
+# As apache is never run as root, change dir ownership
+    a2disconf other-vhosts-access-log && \
+    chown -Rh www-data. /var/run/apache2 && \
+# Install ImageMagick CLI tools
+    apt-get -y install --no-install-recommends imagemagick && \
+# Clean up apt setup files
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+# Setup apache
+    a2enmod rewrite headers expires ext_filter
+
+# Override default apache and php config
+COPY src/000-default.conf /etc/apache2/sites-available
+COPY src/mpm_prefork.conf /etc/apache2/mods-available
+COPY src/status.conf      /etc/apache2/mods-available
+COPY src/99-local.ini     /etc/php/${PHP_VERSION}/apache2/conf.d
+
+
+FROM scratch
+COPY --from=builder / /
+WORKDIR /var/www
+
+EXPOSE 80
+# USER www-data
+
+ENTRYPOINT ["apache2ctl", "-D", "FOREGROUND"]
