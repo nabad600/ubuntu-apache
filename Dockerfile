@@ -3,7 +3,7 @@ LABEL Author="Raja Subramanian" Description="A comprehensive docker image to run
 
 
 # Stop dpkg-reconfigure tzdata from prompting for input
-ENV PHP_VERSION=7.0
+ENV PHP_VERSION=5.6
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get upgrade -yq \
