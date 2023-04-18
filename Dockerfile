@@ -1,11 +1,11 @@
-FROM ubuntu:20.04 AS builder
+FROM ubuntu:22.04 AS builder
 LABEL Author="Raja Subramanian" Description="A comprehensive docker image to run Apache-2.4 PHP-8.1 applications like Wordpress, Laravel, etc"
 
 
 # Stop dpkg-reconfigure tzdata from prompting for input
-ENV PHP_VERSION=7.2
+ENV PHP_VERSION=
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt update && apt -y install software-properties-common && add-apt-repository ppa:ondrej/php -y
+# RUN apt update && apt -y install software-properties-common && add-apt-repository ppa:ondrej/php -y
 # Install apache and php7
 RUN apt update && \
     apt -y install apache2 \
