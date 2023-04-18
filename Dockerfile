@@ -5,7 +5,7 @@ LABEL Author="Raja Subramanian" Description="A comprehensive docker image to run
 # Stop dpkg-reconfigure tzdata from prompting for input
 ENV PHP_VERSION=
 ENV DEBIAN_FRONTEND=noninteractive
-# RUN apt update && apt -y install software-properties-common && add-apt-repository ppa:ondrej/php -y
+RUN apt update && apt -y install software-properties-common && add-apt-repository ppa:ondrej/php -y
 # Install apache and php7
 RUN apt update && \
     apt -y install apache2 \
