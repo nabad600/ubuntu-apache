@@ -3,7 +3,7 @@ LABEL Author="Raja Subramanian" Description="A comprehensive docker image to run
 
 
 # Stop dpkg-reconfigure tzdata from prompting for input
-ENV PHP_VERSION=8.0
+ENV PHP_VERSION=7.0
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get upgrade -yq \
@@ -27,7 +27,7 @@ RUN apt update && \
         php${PHP_VERSION}-mbstring \
         php${PHP_VERSION}-gd \
         php${PHP_VERSION}-mysql \
-        # php${PHP_VERSION}-json \
+        php${PHP_VERSION}-json \
         php${PHP_VERSION}-ldap \
         php${PHP_VERSION}-memcached \
         # php${PHP_VERSION}-mime-type \
@@ -45,18 +45,18 @@ RUN apt update && \
         npm \
         gcc \
         sudo \
-        composer \
         curl \
         wget \
         imagemagick
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer \
 # Ensure apache can bind to 80 as non-root
     #     libcap2-bin && \
-    # setcap 'cap_net_bind_service=+ep' /usr/sbin/apache2 && \
+    setcap 'cap_net_bind_service=+ep' /usr/sbin/apache2 && \
     # dpkg --purge libcap2-bin && \
     # apt-get -y autoremove && \
 # As apache is never run as root, change dir ownership
-    # a2disconf other-vhosts-access-log && \
-    # chown -Rh www-data. /var/run/apache2 && \
+    a2disconf other-vhosts-access-log && \
+    chown -Rh www-data. /var/run/apache2 
 # Install ImageMagick CLI tools
     # apt-get -y install --no-install-recommends imagemagick && \
 # Clean up apt setup files
@@ -75,8 +75,9 @@ COPY src/99-local.ini     /etc/php/${PHP_VERSION}/apache2/conf.d
 FROM scratch
 COPY --from=builder / /
 WORKDIR /var/www
+RUN echo "www-data ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 EXPOSE 80
-# USER www-data
+USER www-data
 
 ENTRYPOINT ["apache2ctl", "-D", "FOREGROUND"]
