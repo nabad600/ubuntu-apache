@@ -3,9 +3,10 @@ LABEL Author="Raja Subramanian" Description="A comprehensive docker image to run
 
 
 # Stop dpkg-reconfigure tzdata from prompting for input
-ENV PHP_VERSION=
+ENV PHP_VERSION=8.1
 ENV DEBIAN_FRONTEND=noninteractive
-# RUN apt update && apt -y install software-properties-common && add-apt-repository ppa:ondrej/php -y
+
+RUN apt update && apt -y install software-properties-common && add-apt-repository ppa:ondrej/php -y
 # Install apache and php7
 RUN apt update && \
     apt -y install apache2 \
@@ -13,12 +14,13 @@ RUN apt update && \
         libapache2-mod-auth-openidc \
         php${PHP_VERSION}-bcmath \
         php${PHP_VERSION} \
-        # php${PHP_VERSION}-cli \
+        php${PHP_VERSION}-dev \
+        php${PHP_VERSION}-cli \
         php${PHP_VERSION}-curl \
         php${PHP_VERSION}-mbstring \
         php${PHP_VERSION}-gd \
         php${PHP_VERSION}-mysql \
-        php${PHP_VERSION}-json \
+        # php${PHP_VERSION}-json \
         php${PHP_VERSION}-ldap \
         php${PHP_VERSION}-memcached \
         # php${PHP_VERSION}-mime-type \
@@ -41,6 +43,10 @@ RUN apt update && \
         wget \
         imagemagick
 # Ensure apache can bind to 80 as non-root
+RUN apt install -y libcap2-bin
+RUN setcap 'cap_net_bind_service=+ep' /usr/sbin/apache2
+RUN a2disconf other-vhosts-access-log 
+RUN chown -Rh www-data. /var/run/apache2
     #     libcap2-bin && \
     # setcap 'cap_net_bind_service=+ep' /usr/sbin/apache2 && \
     # dpkg --purge libcap2-bin && \
@@ -66,8 +72,8 @@ COPY src/99-local.ini     /etc/php/${PHP_VERSION}/apache2/conf.d
 FROM scratch
 COPY --from=builder / /
 WORKDIR /var/www
-
+RUN echo "www-data ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 EXPOSE 80
-# USER www-data
+USER www-data
 
 ENTRYPOINT ["apache2ctl", "-D", "FOREGROUND"]
