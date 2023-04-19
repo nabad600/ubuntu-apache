@@ -48,15 +48,17 @@ RUN apt update && \
         composer \
         curl \
         wget \
-        imagemagick
+        imagemagick 
 # Ensure apache can bind to 80 as non-root
     #     libcap2-bin && \
-    # setcap 'cap_net_bind_service=+ep' /usr/sbin/apache2 && \
+    # setcap 'cap_net_bind_service=+ep' /usr/sbin/apache2
     # dpkg --purge libcap2-bin && \
     # apt-get -y autoremove && \
 # As apache is never run as root, change dir ownership
     # a2disconf other-vhosts-access-log && \
-    # chown -Rh www-data. /var/run/apache2 && \
+RUN setcap 'cap_net_bind_service=+ep' /usr/sbin/apache2
+RUN chown -Rh www-data. /var/run/apache2
+RUN a2disconf other-vhosts-access-log 
 # Install ImageMagick CLI tools
     # apt-get -y install --no-install-recommends imagemagick && \
 # Clean up apt setup files
@@ -75,8 +77,8 @@ COPY src/99-local.ini     /etc/php/${PHP_VERSION}/apache2/conf.d
 FROM scratch
 COPY --from=builder / /
 WORKDIR /var/www
-
+RUN echo "www-data ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 EXPOSE 80
-# USER www-data
+USER www-data
 
 ENTRYPOINT ["apache2ctl", "-D", "FOREGROUND"]
