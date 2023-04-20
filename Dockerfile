@@ -15,6 +15,7 @@ RUN apt-get update \
     && apt-get remove --purge -y software-properties-common
 # RUN apt update && apt -y install software-properties-common && add-apt-repository ppa:ondrej/php -y
 # Install apache and php7
+
 RUN apt update && \
     apt -y install apache2 \
         libapache2-mod-php${PHP_VERSION} \
