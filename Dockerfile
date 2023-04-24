@@ -58,6 +58,8 @@ RUN apt update && \
     # a2enmod rewrite headers expires ext_filter
 
 # Override default apache and php config
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 COPY src/000-default.conf /etc/apache2/sites-available
 COPY src/mpm_prefork.conf /etc/apache2/mods-available
 COPY src/status.conf      /etc/apache2/mods-available
@@ -70,5 +72,5 @@ WORKDIR /var/www
 RUN echo "www-data ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 EXPOSE 80
 # USER www-data
-
-ENTRYPOINT ["apache2ctl", "-D", "FOREGROUND"]
+CMD [ "/start.sh" ]
+# ENTRYPOINT ["apache2ctl", "-D", "FOREGROUND"]
