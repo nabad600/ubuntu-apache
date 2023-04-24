@@ -69,6 +69,6 @@ COPY --from=builder / /
 WORKDIR /var/www
 RUN echo "www-data ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 EXPOSE 80
-USER www-data
+# USER www-data
 
 ENTRYPOINT ["apache2ctl", "-D", "FOREGROUND"]
