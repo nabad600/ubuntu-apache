@@ -37,7 +37,6 @@ RUN apt update && \
         npm \
         gcc \
         sudo \
-        composer \
         curl \
         wget \
         imagemagick \
@@ -56,6 +55,11 @@ RUN apt update && \
     # rm -rf /var/lib/apt/lists/* && \
 # Setup apache
     # a2enmod rewrite headers expires ext_filter
+
+# Install composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php --install-dir=bin --filename=composer \
+    && php -r "unlink('composer-setup.php');"
 
 # Override default apache and php config
 COPY start.sh /start.sh
