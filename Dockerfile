@@ -61,8 +61,14 @@ RUN chown -Rh www-data. /var/run/apache2
     # rm -rf /var/lib/apt/lists/* && \
 # Setup apache
     # a2enmod rewrite headers expires ext_filter
+# Install composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php --install-dir=bin --filename=composer \
+    && php -r "unlink('composer-setup.php');"
 
 # Override default apache and php config
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 COPY src/000-default.conf /etc/apache2/sites-available
 COPY src/mpm_prefork.conf /etc/apache2/mods-available
 COPY src/status.conf      /etc/apache2/mods-available
@@ -75,5 +81,5 @@ WORKDIR /var/www
 RUN echo "www-data ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 EXPOSE 80
 # USER www-data
-
-ENTRYPOINT ["apache2ctl", "-D", "FOREGROUND"]
+CMD [ "/start.sh" ]
+# ENTRYPOINT ["apache2ctl", "-D", "FOREGROUND"]
