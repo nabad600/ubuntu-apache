@@ -32,8 +32,10 @@ RUN apt update && \
         php${PHP_VERSION}-uploadprogress \
         php${PHP_VERSION}-zip \
         php${PHP_VERSION}-mongodb \
+        php${PHP_VERSION}-dom \
         nodejs \
         nano \
+        wget \
         git \
         npm \
         gcc \
