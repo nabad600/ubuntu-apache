@@ -3,7 +3,7 @@ LABEL Author="Raja Subramanian" Description="A comprehensive docker image to run
 
 
 # Stop dpkg-reconfigure tzdata from prompting for input
-ENV PHP_VERSION=
+ENV PHP_VERSION=8.2
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt -y install software-properties-common && add-apt-repository ppa:ondrej/php -y
 # Install apache and php7
@@ -18,7 +18,7 @@ RUN apt update && \
         php${PHP_VERSION}-mbstring \
         php${PHP_VERSION}-gd \
         php${PHP_VERSION}-mysql \
-        php${PHP_VERSION}-json \
+        # php${PHP_VERSION}-json \
         php${PHP_VERSION}-ldap \
         php${PHP_VERSION}-memcached \
         # php${PHP_VERSION}-mime-type \
